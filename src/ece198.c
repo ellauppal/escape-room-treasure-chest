@@ -214,14 +214,13 @@ int ReadKeypad() {
     // should work with a 4x3 matrix, since last column will just return zero
     for (int row = 0; row < 4; ++row) {
         // enable the pin for (only) this row
-        for (int i = 0; i < 4; ++i) {
-            HAL_GPIO_WritePin(rows[i].port, rows[i].pin, i == row);  // all high except the row we care about
-        }
-        for (int col = 0; col < 4; ++col)
+        for (int i = 0; i < 4; ++i)
+            HAL_GPIO_WritePin(rows[i].port, rows[i].pin, i == row);  // all low except the row we care about
+        for (int col = 0; col < 4; ++col)  // check all the column pins to see if any are high
             if (HAL_GPIO_ReadPin(cols[col].port, cols[col].pin))
                 return row*4+col;
     }
-    return -1;
+    return -1;  // none of the keys were pressed
 }
 
 ///////////////////////
@@ -237,10 +236,11 @@ segments[] = {
     { GPIOC, GPIO_PIN_1 },  // E
     { GPIOC, GPIO_PIN_0 },  // F
     { GPIOB, GPIO_PIN_8 },  // G
-    { GPIOB, GPIO_PIN_9 },  // DP
+    { GPIOB, GPIO_PIN_9 },  // H (also called DP)
 };
 
 // for each digit, we have a byte (uint8_t) which stores which segments are on and off
+// (bits are ABCDEFGH, right to left, so the low-order bit is segment A)
 uint8_t digitmap[10] = { 0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7C, 0x07, 0x7F, 0x67 };
 
 void Initialize7Segment() {
@@ -249,9 +249,9 @@ void Initialize7Segment() {
 }
 
 void Display7Segment(int digit) {
-    int value = 0;
-    if (digit >= 0 && digit <= 9)
-        value = digitmap[digit];   // convert digit to mask of which are on and off
-    for (int i = 0; i < 8; ++i)
-        HAL_GPIO_WritePin(segments[i].port, segments[i].pin, (value >> (i)) & 0x01);
+    int value = 0;  // by default, don't turn on any segments
+    if (digit >= 0 && digit <= 9)  // see if it's a valid digit
+        value = digitmap[digit];   // convert digit to a byte which specifies which segments are on and which are off
+    for (int i = 0; i < 8; ++i)    // go through the segments, turning them on or off depending on the corresponding bit
+        HAL_GPIO_WritePin(segments[i].port, segments[i].pin, (value >> i) & 0x01);  // move bit into bottom position and isolate it
 }

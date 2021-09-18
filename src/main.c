@@ -8,8 +8,10 @@
 // To enable a particular application, you should remove the comment (//) in
 // front of exactly ONE of the following lines:
 
-//#define BUTTON_BLINK
-#define TIME_RAND
+#define BUTTON_BLINK
+//#define LIGHT_SCHEDULER
+//#define FAN_SCHEDULER
+//#define TIME_RAND
 //#define KEYPAD
 //#define SEVEN_SEGMENT
 //#define KEYPAD_SEVEN_SEGMENT
@@ -64,6 +66,27 @@ int main(void)
     }
 #endif
 
+#ifdef LIGHT_SCHEDULER
+    while (true) {
+        uint32_t now = HAL_GetTick();
+        if (now > 5000 && now < 10000)
+            HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, true);
+        else
+            HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, false);
+    }
+#endif
+
+#ifdef FAN_SCHEDULER
+    InitializePin(GPIOC, GPIO_PIN_0, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);
+    while (true) {
+        uint32_t now = HAL_GetTick();
+        if (now > 5000 && now < 10000)
+            HAL_GPIO_WritePin(GPIOC, GPIO_PIN_0, true);
+        else
+            HAL_GPIO_WritePin(GPIOC, GPIO_PIN_0, false);
+    }
+#endif
+
 #ifdef TIME_RAND
     // This illustrates the use of HAL_GetTick() to get the current time,
     // plus the use of random() for random number generation.
@@ -71,14 +94,14 @@ int main(void)
     // Note that you must have "#include <stdlib.h>"" at the top of your main.c
     // in order to use the srand() and random() functions.
 
-    while (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13));  // wait for button press
+    //while (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13));  // wait for button press
     //srand(HAL_GetTick());    // set the random seed to be the time in milliseconds that it took the user to press the button
     // if the line above is commented out, your program will get the same sequence of random numbers
     // every time you run it (which may be useful in some cases)
 
     while (true) // loop forever
     {
-        while (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13));   // wait for button press
+        while (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13));  // wait for button press
 
         // Display the time in milliseconds along with a random number.
         // We use the sprintf() function to put the formatted output into a buffer;
@@ -92,18 +115,6 @@ int main(void)
     }
 #endif
 
-#ifdef SEVEN_SEGMENT
-    // Display the numbers 0 to 9 inclusive on the 7-segment display, pausing for a second between each one.
-    // Remember that the GND connection on the display must go through a 220 ohm current-limiting resistor!
-    Initialize7Segment();
-    while (true)
-        for (int i = 0; i < 10; ++i)
-        {
-            Display7Segment(i);
-            HAL_Delay(1000);  // 1000 milliseconds == 1 second
-        }
-#endif
-
 #ifdef KEYPAD
     // Read buttons on the keypad and display them on the console.
 
@@ -115,10 +126,22 @@ int main(void)
     InitializeKeypad();
     while (true)
     {
-        int key = ReadKeypad();  // returns a number from 0 to 15 indicating the key, or -1 if no key is pressed
-        if (key >= 0)
-            SerialPutc(keypad_symbols[key])
+        while (ReadKeypad() < 0);   // wait for a valid key
+        SerialPutc(keypad_symbols[ReadKeypad()]);
+        while (ReadKeypad() >= 0);  // wait until key is released
     }
+#endif
+
+#ifdef SEVEN_SEGMENT
+    // Display the numbers 0 to 9 inclusive on the 7-segment display, pausing for a second between each one.
+    // Remember that the GND connection on the display must go through a 220 ohm current-limiting resistor!
+    Initialize7Segment();
+    while (true)
+        for (int i = 0; i < 10; ++i)
+        {
+            Display7Segment(i);
+            HAL_Delay(1000);  // 1000 milliseconds == 1 second
+        }
 #endif
 
 #ifdef KEYPAD_SEVEN_SEGMENT

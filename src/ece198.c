@@ -202,16 +202,17 @@ cols[] = {
     { GPIOA, GPIO_PIN_10 }
 };
 
-void InitializeKeypad() {  // rows are outputs, columns are inputs
+void InitializeKeypad() {
+      // rows are outputs, columns are inputs
     for (int i = 0; i < 4; ++i) {
         InitializePin(rows[i].port, rows[i].pin, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);
-        InitializePin(cols[i].port, cols[i].pin, GPIO_MODE_INPUT, GPIO_PULLDOWN, 0);  // inputs are low if not pulled high
-    }
+        InitializePin(cols[i].port, cols[i].pin, GPIO_MODE_INPUT, GPIO_PULLDOWN, 0);
+     }
 }
 
 int ReadKeypad() {
     // scan a 4x4 key matrix by applying a voltage to each row in succession and seeing which column is active
-    // should work with a 4x3 matrix, since last column will just return zero
+    // (should work with a 4x3 matrix, since last column will just return zero)
     for (int row = 0; row < 4; ++row) {
         // enable the pin for (only) this row
         for (int i = 0; i < 4; ++i)
@@ -252,6 +253,48 @@ void Display7Segment(int digit) {
     int value = 0;  // by default, don't turn on any segments
     if (digit >= 0 && digit <= 9)  // see if it's a valid digit
         value = digitmap[digit];   // convert digit to a byte which specifies which segments are on and which are off
+    //value = ~value;   // uncomment this line for common-anode displays
     for (int i = 0; i < 8; ++i)    // go through the segments, turning them on or off depending on the corresponding bit
         HAL_GPIO_WritePin(segments[i].port, segments[i].pin, (value >> i) & 0x01);  // move bit into bottom position and isolate it
 }
+
+/////////
+// ADC //
+/////////
+
+// Written by Rodolfo Pellizzoni, September 2021
+
+void InitializeADC(ADC_HandleTypeDef* adc, ADC_TypeDef* whichAdc)
+{
+    adc->Instance = whichAdc;
+    adc->Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
+    adc->Init.Resolution = ADC_RESOLUTION_12B;
+    adc->Init.ScanConvMode = DISABLE;
+    adc->Init.ContinuousConvMode = DISABLE;
+    adc->Init.DiscontinuousConvMode = DISABLE;
+    adc->Init.NbrOfDiscConversion = 1;
+    adc->Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
+    adc->Init.ExternalTrigConv = ADC_SOFTWARE_START;
+    adc->Init.DataAlign = ADC_DATAALIGN_RIGHT;
+    adc->Init.NbrOfConversion = 2;
+    adc->Init.DMAContinuousRequests = DISABLE;
+    adc->Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+    HAL_ADC_Init(adc);
+}
+
+// read from the specified ADC channel
+
+uint16_t ReadADC(ADC_HandleTypeDef* adc, uint32_t channel)
+{
+    ADC_ChannelConfTypeDef sConfig = {0};
+    sConfig.Channel = channel;
+    sConfig.Rank = 1;
+    sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
+    HAL_ADC_ConfigChannel(adc, &sConfig);
+    HAL_ADC_Start(adc);
+    HAL_ADC_PollForConversion(adc, HAL_MAX_DELAY);
+    uint16_t res = HAL_ADC_GetValue(adc);
+    HAL_ADC_Stop(adc);
+    return res;
+}
+

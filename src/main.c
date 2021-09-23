@@ -249,7 +249,6 @@ int main(void)
         char buff[100];
         sprintf(buff, "Channel0: %hu, Channel1: %hu\r\n", raw0, raw1);  // hu == "unsigned short" (16 bit)
         SerialPuts(buff);
-        while (!HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13));  // wait for button to be released
     }
 #endif
 

@@ -284,7 +284,7 @@ void InitializeADC(ADC_HandleTypeDef* adc, ADC_TypeDef* whichAdc)  // whichADC m
     adc->Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
     adc->Init.ExternalTrigConv = ADC_SOFTWARE_START;
     adc->Init.DataAlign = ADC_DATAALIGN_RIGHT;
-    adc->Init.NbrOfConversion = 2;
+    adc->Init.NbrOfConversion = 1;
     adc->Init.DMAContinuousRequests = DISABLE;
     adc->Init.EOCSelection = ADC_EOC_SINGLE_CONV;
     HAL_ADC_Init(adc);

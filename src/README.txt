@@ -1,6 +1,6 @@
-The ece198.h file should be included at the start of your code, like this:
-
-#include "ece198.h"
+main.c contains sample code.
+ece198.c contains library functions.
+ece198.h is a header file giving prototypes definitions for the functions.
 
 In the main.c file, you'll find a lot of sample code. We use conditional compilation
 to select which sample is being used. Simply uncomment one (and only one) of the #define

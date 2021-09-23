@@ -2,7 +2,8 @@
 
 // Written by Bernie Roehl, July 2021
 
-#include <stdbool.h> // bool type, true and false
+#include <stdbool.h>  // for bool datatype
+
 #include "ece198.h"
 
 ///////////////////////
@@ -27,9 +28,9 @@ void InitializePin(GPIO_TypeDef *port, uint16_t pins, uint32_t mode, uint32_t pu
 // Serial Port //
 /////////////////
 
-UART_HandleTypeDef UART_Handle;  // the serial port we're sing
+UART_HandleTypeDef UART_Handle;  // the serial port we're using
 
-// initialize the serial port at a particular baud rate (PlatformIO defaults to 9600, so should normally use that)
+// initialize the serial port at a particular baud rate (PlatformIO serial monitor defaults to 9600)
 
 HAL_StatusTypeDef SerialSetup(uint32_t baudrate)
 {
@@ -89,7 +90,8 @@ void SerialPuts(char *ptr)
         SerialPutc(*ptr++);
 }
 
-// get a string of characters (up to maxlen) from the serial port into a buffer
+// get a string of characters (up to maxlen) from the serial port into a buffer,
+// collecting them until the user presses the enter key;
 // also echoes the typed characters back to the user, and handles backspacing
 
 void SerialGets(char *buff, int maxlen)
@@ -124,13 +126,14 @@ void SerialGets(char *buff, int maxlen)
 // Rotary Encoder //
 ////////////////////
 
-// read a rotary encoder (handles the quadrature encoding, and uses a previousClk boolean variable provided by the caller)
+// read a rotary encoder (handles the quadrature encoding)
+//(uses a previousClk boolean variable provided by the caller)
 
 int ReadEncoder(GPIO_TypeDef *clkport, int clkpin, GPIO_TypeDef *dtport, int dtpin, bool *previousClk)
 {
     bool clk = HAL_GPIO_ReadPin(clkport, clkpin);
     bool dt = HAL_GPIO_ReadPin(dtport, dtpin);
-    int result = 0;
+    int result = 0;  // default to zero if encoder hasn't moved
     if (clk != *previousClk)           // if the clk signal has changed since last time we were called...
         result = dt != clk ? 1 : -1;   // set the result to the direction (-1 if clk == dt, 1 if they differ)
     *previousClk = clk;                // store for next time
@@ -141,7 +144,7 @@ int ReadEncoder(GPIO_TypeDef *clkport, int clkpin, GPIO_TypeDef *dtport, int dtp
 // Pulse Width Modulation //
 ////////////////////////////
 
-// set up a specified timer with the given period (whichTimer is something like TIM2 or TIM1)
+// set up a specified timer with the given period (whichTimer might be TIM2, for example)
 
 void InitializePWMTimer(TIM_HandleTypeDef *timer, TIM_TypeDef *whichTimer, uint16_t period, uint16_t prescale )
 {
@@ -154,7 +157,7 @@ void InitializePWMTimer(TIM_HandleTypeDef *timer, TIM_TypeDef *whichTimer, uint1
     HAL_TIM_PWM_Init(timer);
 }
 
-// set up a particular channel on the given timer
+// set up a particular channel (e.g. TIM_CHANNEL_1) on the given timer instance
 
 void InitializePWMChannel(TIM_HandleTypeDef *timer, uint32_t channel)
 {
@@ -207,7 +210,7 @@ cols[] = {
 };
 
 void InitializeKeypad() {
-      // rows are outputs, columns are inputs
+    // rows are outputs, columns are inputs and are pulled low so they don't "float"
     for (int i = 0; i < 4; ++i) {
         InitializePin(rows[i].port, rows[i].pin, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);
         InitializePin(cols[i].port, cols[i].pin, GPIO_MODE_INPUT, GPIO_PULLDOWN, 0);
@@ -256,9 +259,10 @@ void Initialize7Segment() {
 void Display7Segment(int digit) {
     int value = 0;  // by default, don't turn on any segments
     if (digit >= 0 && digit <= 9)  // see if it's a valid digit
-        value = digitmap[digit];   // convert digit to a byte which specifies which segments are on and which are off
+        value = digitmap[digit];   // convert digit to a byte which specifies which segments are on
     //value = ~value;   // uncomment this line for common-anode displays
-    for (int i = 0; i < 8; ++i)    // go through the segments, turning them on or off depending on the corresponding bit
+    // go through the segments, turning them on or off depending on the corresponding bit
+    for (int i = 0; i < 8; ++i)
         HAL_GPIO_WritePin(segments[i].port, segments[i].pin, (value >> i) & 0x01);  // move bit into bottom position and isolate it
 }
 
@@ -268,7 +272,7 @@ void Display7Segment(int digit) {
 
 // Written by Rodolfo Pellizzoni, September 2021
 
-void InitializeADC(ADC_HandleTypeDef* adc, ADC_TypeDef* whichAdc)
+void InitializeADC(ADC_HandleTypeDef* adc, ADC_TypeDef* whichAdc)  // whichADC might be ADC1, for example
 {
     adc->Instance = whichAdc;
     adc->Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
@@ -288,7 +292,7 @@ void InitializeADC(ADC_HandleTypeDef* adc, ADC_TypeDef* whichAdc)
 
 // read from the specified ADC channel
 
-uint16_t ReadADC(ADC_HandleTypeDef* adc, uint32_t channel)
+uint16_t ReadADC(ADC_HandleTypeDef* adc, uint32_t channel)  // channel might be ADC_CHANNEL_1 for example
 {
     ADC_ChannelConfTypeDef sConfig = {0};
     sConfig.Channel = channel;

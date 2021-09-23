@@ -2,24 +2,24 @@
 
 // Written by Bernie Roehl, August 2021
 
-// This file contains sample code for a number of different applications.
+// This file contains code for a number of different examples.
 // Each one is surrounded by an #ifdef ... #endif block inside of main().
 
-// To enable a particular application, you should remove the comment (//) in
+// To run a particular example, you should remove the comment (//) in
 // front of exactly ONE of the following lines:
 
-//#define BUTTON_BLINK
-//#define LIGHT_SCHEDULER
-//#define FAN_SCHEDULER
-//#define TIME_RAND
-//#define KEYPAD
-//#define KEYPAD_CONTROL
-//#define SEVEN_SEGMENT
-//#define KEYPAD_SEVEN_SEGMENT
-//#define COLOR_LED
-#define ROTARY_ENCODER
-//#define ANALOG
-//#define PWM
+#define BUTTON_BLINK
+// #define LIGHT_SCHEDULER
+// #define FAN_SCHEDULER
+// #define TIME_RAND
+// #define KEYPAD
+// #define KEYPAD_CONTROL
+// #define SEVEN_SEGMENT
+// #define KEYPAD_SEVEN_SEGMENT
+// #define COLOR_LED
+// #define ROTARY_ENCODER
+// #define ANALOG
+// #define PWM
 
 #include <stdbool.h> // booleans, i.e. true and false
 #include <stdio.h>   // sprintf() function
@@ -40,12 +40,13 @@ int main(void)
 
     // initialize the pins to be input, output, alternate function, etc...
 
-    InitializePin(GPIOA, GPIO_PIN_5, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0); // initialize the pin that the on-board LED is on
+    InitializePin(GPIOA, GPIO_PIN_5, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);  // on-board LED
 
-    // note: the on-board pushbutton is fine with the default values (input, and no pull-up resistor is required since there's one on the board)
+    // note: the on-board pushbutton is fine with the default values (no internal pull-up resistor
+    // is required, since there's one on the board)
 
     // set up for serial communication to the host computer
-    // (anything we write to the serial port will appear in the console in VSCode)
+    // (anything we write to the serial port will appear in the terminal (i.e. serial monitor) in VSCode)
 
     SerialSetup(9600);
 
@@ -53,7 +54,7 @@ int main(void)
     // (depending on which of the #define statements at the top of this file has been uncommented)
 
 #ifdef BUTTON_BLINK
-    // wait for the user to push the blue button, then blink the LED
+    // Wait for the user to push the blue button, then blink the LED.
 
     // wait for button press (active low)
     while (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13))
@@ -68,7 +69,8 @@ int main(void)
 #endif
 
 #ifdef LIGHT_SCHEDULER
-    // turn on the LED five seconds after reset, and turn it off again five seconds later
+    // Turn on the LED five seconds after reset, and turn it off again five seconds later.
+
     while (true) {
         uint32_t now = HAL_GetTick();
         if (now > 5000 && now < 10000)
@@ -79,7 +81,7 @@ int main(void)
 #endif
 
 #ifdef FAN_SCHEDULER
-    // turn the fan on at the 5-second mark, and turn it off at the 10-second mark
+    // Turn the fan on at the 5-second mark, and turn it off at the 10-second mark.
 
     // the fan is hooked up to port C pin 0, so initialize that port as output
     InitializePin(GPIOC, GPIO_PIN_0, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);
@@ -99,8 +101,8 @@ int main(void)
     // Note that you must have "#include <stdlib.h>"" at the top of your main.c
     // in order to use the srand() and random() functions.
 
-    while (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13));  // wait for button press
-    srand(HAL_GetTick());    // set the random seed to be the time in milliseconds that it took the user to press the button
+    // while (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13));  // wait for button press
+    // srand(HAL_GetTick());  // set the random seed to be the time in ms that it took to press the button
     // if the line above is commented out, your program will get the same sequence of random numbers
     // every time you run it (which may be useful in some cases)
 
@@ -113,8 +115,9 @@ int main(void)
         // see https://www.tutorialspoint.com/c_standard_library/c_function_sprintf.htm for more
         // information about this function
         char buff[100];
-        sprintf(buff, "Time: %lu ms   Random = %ld\r\n", HAL_GetTick(), random());  // lu == "long unsigned", ld = "long signed"
-        SerialPuts(buff); // transmit the buffer to the host computer where it gets displayed in the VSCode serial console
+        sprintf(buff, "Time: %lu ms   Random = %ld\r\n", HAL_GetTick(), random());
+        // lu == "long unsigned", ld = "long decimal", where "long" is 32 bit and "decimal" implies signed
+        SerialPuts(buff); // transmit the buffer to the host computer's serial monitor in VSCode/PlatformIO
 
         while (!HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13));  // wait for button to be released
     }
@@ -124,7 +127,7 @@ int main(void)
     // Read buttons on the keypad and display them on the console.
 
     // this string contains the symbols on the external keypad
-    // (they may be different for different keypad layouts)
+    // (they may be different for different keypads)
     char *keypad_symbols = "123A456B789C*0#D";
     // note that they're numbered from left to right and top to bottom, like reading words on a page
 
@@ -132,20 +135,20 @@ int main(void)
     while (true)
     {
         while (ReadKeypad() < 0);   // wait for a valid key
-        SerialPutc(keypad_symbols[ReadKeypad()]);
-        while (ReadKeypad() >= 0);  // wait until key is released2
+        SerialPutc(keypad_symbols[ReadKeypad()]);  // look up its ASCII symbol and send it to the hsot
+        while (ReadKeypad() >= 0);  // wait until key is released
     }
 #endif
 
 #ifdef KEYPAD_CONTROL
-    // Use keypad to toggle LED
+    // Use top-right button on 4x4 keypad (typically 'A') to toggle LED.
 
     InitializeKeypad();
     while (true)
     {
         while (ReadKeypad() < 0);   // wait for a valid key
         int key = ReadKeypad();
-        if (key == 3)
+        if (key == 3)  // top-right key in a 4x4 keypad, usually 'A'
             HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);   // toggle LED on or off
          while (ReadKeypad() >= 0);  // wait until key is released
     }
@@ -153,7 +156,8 @@ int main(void)
 
 #ifdef SEVEN_SEGMENT
     // Display the numbers 0 to 9 inclusive on the 7-segment display, pausing for a second between each one.
-    // Remember that the GND connection on the display must go through a 220 ohm current-limiting resistor!
+    // (remember that the GND connection on the display must go through a 220 ohm current-limiting resistor!)
+    
     Initialize7Segment();
     while (true)
         for (int i = 0; i < 10; ++i)
@@ -167,7 +171,7 @@ int main(void)
     // Combines the previous two examples, displaying numbers from the keypad on the 7-segment display.
 
     // this string contains the symbols on the external keypad
-    // (they may be different for different keypad layouts)
+    // (they may be different for different keypads)
     char *keypad_symbols = "123A456B789C*0#D";
     // note that they're numbered from left to right and top to bottom, like reading words on a page
 
@@ -177,7 +181,7 @@ int main(void)
     {
         int key = ReadKeypad();
         if (key >= 0)
-            Display7Segment(keypad_symbols[key]-'0');
+            Display7Segment(keypad_symbols[key]-'0');  // tricky code to convert ASCII digit to a number
     }
 #endif
 
@@ -227,32 +231,30 @@ int main(void)
 #endif
 
 #ifdef ANALOG
-    // Use ADC (Analog to Digital Converter) to read voltage values from two pins
+    // Use the ADC (Analog to Digital Converter) to read voltage values from two pins.
 
     __HAL_RCC_ADC1_CLK_ENABLE();        // enable ADC 1
     ADC_HandleTypeDef adcInstance;      // this variable stores an instance of the ADC
     InitializeADC(&adcInstance, ADC1);  // initialize the ADC instance
-    // enables the input pins
-    // in this board, pin A0 is connected to channel 0 of ADC1, and A1 is to channel 1 of ADC1
+    // Enables the input pins
+    // (on this board, pin A0 is connected to channel 0 of ADC1, and A1 is connected to channel 1 of ADC1)
     InitializePin(GPIOA, GPIO_PIN_0 | GPIO_PIN_1, GPIO_MODE_ANALOG, GPIO_NOPULL, 0);   
     while (true)
     {
-        //while (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13));  // wait for button press
-        // Get ADC values
-        // 0 -> 0V, 2^12 -> 3.3V
+        // read the ADC values (0 -> 0V, 2^12 -> 3.3V)
         uint16_t raw0 = ReadADC(&adcInstance, ADC_CHANNEL_0);
         uint16_t raw1 = ReadADC(&adcInstance, ADC_CHANNEL_1);
 
-        // Print the ADC values
+        // print the ADC values
         char buff[100];
-        sprintf(buff, "Channel0: %hu, Channel1: %hu %e\r\n", raw0, raw1);  // hu == "unsigned short"
+        sprintf(buff, "Channel0: %hu, Channel1: %hu\r\n", raw0, raw1);  // hu == "unsigned short" (16 bit)
         SerialPuts(buff);
         while (!HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13));  // wait for button to be released
     }
 #endif
 
 #ifdef PWM
-    // use Pulse Width Modulation to fade the LED in and out
+    // Use Pulse Width Modulation to fade the LED in and out.
     uint16_t period = 100, prescale = 16;
 
     __TIM2_CLK_ENABLE();  // enable timer 2
@@ -281,6 +283,7 @@ int main(void)
     return 0;
 }
 
+// This function is called by the HAL once every millisecond
 void SysTick_Handler(void)
 {
     HAL_IncTick(); // tell HAL that a new tick has happened

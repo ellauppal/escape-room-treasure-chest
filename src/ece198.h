@@ -14,7 +14,7 @@ void SerialGets(char *buff, int maxlen);
 void SerialPutc(char c);
 void SerialPuts(char *ptr);
 
-// macro for reading an entire port (we use this so students don't need to know about structs)
+// macro for reading an entire port (we provide this so students don't need to know about structs)
 #define ReadPort(port) (port->IDR)
 
 int ReadEncoder(GPIO_TypeDef *clkport, int clkpin, GPIO_TypeDef *dtport, int dtpin, bool *previous);

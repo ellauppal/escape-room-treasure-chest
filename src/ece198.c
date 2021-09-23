@@ -5,11 +5,9 @@
 #include <stdbool.h> // bool type, true and false
 #include "ece198.h"
 
-/////////////////
-// Serial Port //
-/////////////////
-
-UART_HandleTypeDef UART_Handle;  // the serial port we're sing
+///////////////////////
+// Initializing Pins //
+///////////////////////
 
 // Initialize a pin (or pins) to a particular mode, with optional pull-up or pull-down resistors
 // and possible alternate function
@@ -24,6 +22,12 @@ void InitializePin(GPIO_TypeDef *port, uint16_t pins, uint32_t mode, uint32_t pu
     GPIO_InitStruct.Alternate = alternate;
     HAL_GPIO_Init(port, &GPIO_InitStruct);
 }
+
+/////////////////
+// Serial Port //
+/////////////////
+
+UART_HandleTypeDef UART_Handle;  // the serial port we're sing
 
 // initialize the serial port at a particular baud rate (PlatformIO defaults to 9600, so should normally use that)
 
@@ -77,6 +81,14 @@ void SerialPutc(char c)
     UART_Handle.Instance->DR = c;  // send the character
 }
 
+// write a string of characters to the serial port
+
+void SerialPuts(char *ptr)
+{
+    while (*ptr)
+        SerialPutc(*ptr++);
+}
+
 // get a string of characters (up to maxlen) from the serial port into a buffer
 // also echoes the typed characters back to the user, and handles backspacing
 
@@ -108,14 +120,6 @@ void SerialGets(char *buff, int maxlen)
     }
 }
 
-// write a string of characters to the serial port
-
-void SerialPuts(char *ptr)
-{
-    while (*ptr)
-        SerialPutc(*ptr++);
-}
-
 ////////////////////
 // Rotary Encoder //
 ////////////////////
@@ -124,12 +128,12 @@ void SerialPuts(char *ptr)
 
 int ReadEncoder(GPIO_TypeDef *clkport, int clkpin, GPIO_TypeDef *dtport, int dtpin, bool *previousClk)
 {
-    bool clk = !HAL_GPIO_ReadPin(clkport, clkpin);  // active low
-    bool dt = !HAL_GPIO_ReadPin(dtport, dtpin);     // active low
+    bool clk = HAL_GPIO_ReadPin(clkport, clkpin);
+    bool dt = HAL_GPIO_ReadPin(dtport, dtpin);
     int result = 0;
-    if (!clk && *previousClk)  // if the clk signal has changed since last time we were called...
-        result = clk != dt ? 1 : -1;   // set the result to the direction (-1 if clk == dt, 1 if they differ)
-    *previousClk = clk;        // store for next time
+    if (clk != *previousClk)           // if the clk signal has changed since last time we were called...
+        result = dt != clk ? 1 : -1;   // set the result to the direction (-1 if clk == dt, 1 if they differ)
+    *previousClk = clk;                // store for next time
     return result;
 }
 

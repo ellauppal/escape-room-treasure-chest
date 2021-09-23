@@ -222,7 +222,7 @@ int main(void)
             SerialPuts(buff);
         }
         bool sw = !HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_10);  // read the push-switch on the encoder (active low, so we invert it using !)
-        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, sw); // turn on LED when encoder switch is pushed in
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, sw);  // turn on LED when encoder switch is pushed in
     }
 #endif
 

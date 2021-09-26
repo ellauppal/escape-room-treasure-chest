@@ -10,7 +10,6 @@
 
 #define BUTTON_BLINK
 // #define LIGHT_SCHEDULER
-// #define FAN_SCHEDULER
 // #define TIME_RAND
 // #define KEYPAD
 // #define KEYPAD_CONTROL
@@ -77,20 +76,6 @@ int main(void)
             HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, true);   // turn on LED
         else
             HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, false);  // turn off LED
-    }
-#endif
-
-#ifdef FAN_SCHEDULER
-    // Turn the fan on at the 5-second mark, and turn it off at the 10-second mark.
-
-    // the fan is hooked up to port C pin 0, so initialize that port as output
-    InitializePin(GPIOC, GPIO_PIN_0, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);
-    while (true) {
-        uint32_t now = HAL_GetTick();
-        if (now > 5000 && now < 10000)
-            HAL_GPIO_WritePin(GPIOC, GPIO_PIN_0, true);   // turn on fan
-        else
-            HAL_GPIO_WritePin(GPIOC, GPIO_PIN_0, false);  // turn off fan
     }
 #endif
 

@@ -8,6 +8,8 @@
 // To run a particular example, you should remove the comment (//) in
 // front of exactly ONE of the following lines:
 
+
+
 #define BUTTON_BLINK
 // #define LIGHT_SCHEDULER
 // #define TIME_RAND
@@ -24,10 +26,40 @@
 #include <stdio.h>   // sprintf() function
 #include <stdlib.h>  // srand() and random() functions
 
+
 #include "ece198.h"
+#include "LiquidCrystal.h"
+#include<Servo.h>
 
 int main(void)
 {
+    const int rs = PB0, en = PB1, d4 = PB10 , d5 = PB11 , d6 = PC13, d7 = PC14;
+    LiquidCrystal lcd(rs,en,d4,d5,d6,d7);
+    int servoPin = PA0;
+    int potPin = PA3;
+
+    Servo servo;
+    servo.attach(servoPin);  
+
+    analogRead(potPin);   
+    angle = (reading/24); 
+    servo.write(angle);
+    /*
+    LiquidCrystal(GPIOB, GPIO_PIN_8, GPIO_PIN_9, GPIO_PIN_10, GPIO_PIN_3,GPIO_PIN_4, GPIO_PIN_5, GPIO_PIN_6);
+    
+
+    setCursor(0,0);
+    print("Hello, world!");
+    int n = 0;  // counter
+    while(1){
+        setCursor(0, 1);
+        char buff[100];
+        sprintf(buff, "%d", n++);
+        print(buff);
+        HAL_Delay(80);
+    }
+*/
+
     HAL_Init(); // initialize the Hardware Abstraction Layer
 
     // Peripherals (including GPIOs) are disabled by default to save power, so we

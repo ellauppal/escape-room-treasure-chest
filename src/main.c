@@ -22,6 +22,8 @@
 // #define ANALOG
 // #define PWM
 
+#include <Servo.h>
+#include <LiquidCrystal.h>
 #include <stdbool.h> // booleans, i.e. true and false
 #include <stdio.h>   // sprintf() function
 #include <stdlib.h>  // srand() and random() functions
@@ -33,6 +35,7 @@
 
 int main(void)
 {
+<<<<<<< HEAD
     const int rs = PB0, en = PB1, d4 = PB10 , d5 = PB11 , d6 = PC13, d7 = PC14;
     LiquidCrystal lcd(rs,en,d4,d5,d6,d7);
     int servoPin = PA0;
@@ -53,12 +56,55 @@ int main(void)
     int n = 0;  // counter
     while(1){
         setCursor(0, 1);
+=======
+
+    int servoPin = PA0;
+    // int potPin = PA3;
+    //int potValue = 0;
+    int servoAngle = 0;
+
+    Servo myServo;
+
+    void setup()
+
+    {
+    myServo.attach(servoPin);
+    }
+
+    void loop()
+    {
+    // potValue = analogRead(potPin);
+    servoAngle = (potValue/34);
+    myServo.write(servoAngle);
+    delay(100);
+
+        }
+
+        // initialize the display, specifying what port and pins to use:
+    LiquidCrystal(GPIOB, GPIO_PIN_8, GPIO_PIN_9, GPIO_PIN_10, GPIO_PIN_3,
+        GPIO_PIN_4, GPIO_PIN_5, GPIO_PIN_6);
+    // display a message on the first row of the display
+    setCursor(0,0);
+    print("Hello, world!");
+    // display a count in the second row of the display
+    int n = 0;  // counter
+    while(1)
+    {
+        // set the cursor to column 0, line 1
+        // (note: line 1 is the second row, since counting begins with 0):
+        setCursor(0, 1);
+        // print an incrementing number
+>>>>>>> 620aa148f89f5f3ee79e69b7e565c9368d286437
         char buff[100];
         sprintf(buff, "%d", n++);
         print(buff);
         HAL_Delay(80);
     }
+<<<<<<< HEAD
 */
+=======
+
+>>>>>>> 620aa148f89f5f3ee79e69b7e565c9368d286437
 
     HAL_Init(); // initialize the Hardware Abstraction Layer
 
@@ -298,6 +344,10 @@ int main(void)
 #endif
     return 0;
 }
+
+
+
+
 
 // This function is called by the HAL once every millisecond
 void SysTick_Handler(void)

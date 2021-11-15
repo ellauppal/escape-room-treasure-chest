@@ -8,7 +8,13 @@
 // To run a particular example, you should remove the comment (//) in
 // front of exactly ONE of the following lines:
 
+<<<<<<< HEAD
 //#define BUTTON_BLINK
+=======
+
+
+#define BUTTON_BLINK
+>>>>>>> 1b79b27621c79c4b2d2bd59e48065d857de26802
 // #define LIGHT_SCHEDULER
 // #define TIME_RAND
 // #define KEYPAD
@@ -23,10 +29,18 @@
 #include <stdbool.h> // booleans, i.e. true and false
 #include <stdio.h>   // sprintf() function
 #include <stdlib.h>  // srand() and random() functions
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 1b79b27621c79c4b2d2bd59e48065d857de26802
 #include "ece198.h"
+#include "LiquidCrystal.h"
+#include<Servo.h>
 
 int main(void)
 {
+<<<<<<< HEAD
 
 /*
     while (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_8))
@@ -46,6 +60,8 @@ int main(void)
     }
     }
 */
+=======
+>>>>>>> 1b79b27621c79c4b2d2bd59e48065d857de26802
     HAL_Init(); // initialize the Hardware Abstraction Layer
 
     // Peripherals (including GPIOs) are disabled by default to save power, so we
@@ -57,7 +73,7 @@ int main(void)
 
     // initialize the pins to be input, output, alternate function, etc...
 
-    InitializePin(GPIOA, GPIO_PIN_5, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);  // on-board LED
+    //InitializePin(GPIOA, GPIO_PIN_5, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);  // on-board LED
 
     // note: the on-board pushbutton is fine with the default values (no internal pull-up resistor
     // is required, since there's one on the board)

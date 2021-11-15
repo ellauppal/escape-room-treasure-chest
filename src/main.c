@@ -8,8 +8,11 @@
 // To run a particular example, you should remove the comment (//) in
 // front of exactly ONE of the following lines:
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> f643c77382e4d33e0649eff694d8e7874fe57403
 //#define BUTTON_BLINK
 // #define LIGHT_SCHEDULER
 // #define TIME_RAND
@@ -17,19 +20,26 @@
 // #define KEYPAD_CONTROL
 // #define SEVEN_SEGMENT
 // #define KEYPAD_SEVEN_SEGMENT
+<<<<<<< HEAD
  #define COLOR_LED
+=======
+#define COLOR_LED
+>>>>>>> f643c77382e4d33e0649eff694d8e7874fe57403
 // #define ROTARY_ENCODER
 // #define ANALOG
 // #define PWM
 
+<<<<<<< HEAD
 //#include <servo.h>
 #include <LiquidCrystal.h>
+=======
+>>>>>>> f643c77382e4d33e0649eff694d8e7874fe57403
 #include <stdbool.h> // booleans, i.e. true and false
 #include <stdio.h>   // sprintf() function
 #include <stdlib.h>  // srand() and random() functions
 
-
 #include "ece198.h"
+<<<<<<< HEAD
 #include "LiquidCrystal.h"
 //#include "servo.h"
 
@@ -39,6 +49,12 @@
 
 int main(void)
 {
+=======
+
+int main(void)
+{
+
+>>>>>>> f643c77382e4d33e0649eff694d8e7874fe57403
     HAL_Init(); // initialize the Hardware Abstraction Layer
 
     // Peripherals (including GPIOs) are disabled by default to save power, so we
@@ -50,7 +66,7 @@ int main(void)
 
     // initialize the pins to be input, output, alternate function, etc...
 
-    InitializePin(GPIOA, GPIO_PIN_5, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);  // on-board LED
+    //InitializePin(GPIOA, GPIO_PIN_5, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);  // on-board LED
 
     // note: the on-board pushbutton is fine with the default values (no internal pull-up resistor
     // is required, since there's one on the board)
@@ -189,6 +205,9 @@ int main(void)
     // Also remember that the longest pin on the LED should be hooked up to GND.
 
     InitializePin(GPIOA, GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);  // initialize color LED output pins
+    InitializePin(GPIOA, GPIO_PIN_9, GPIO_MODE_INPUT, GPIO_NOPULL, 0);  // initialize color LED output pins
+
+
     while (true) {
         for (int color = 0; color < 8; ++color) {
             // bottom three bits indicate which of the three LEDs should be on (eight possible combinations)
@@ -196,10 +215,10 @@ int main(void)
             HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, color & 0x02);  // green (hex 2 == 0010 binary)
             HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, color & 0x04);  // red   (hex 4 == 0100 binary)
 
-            while (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13));   // wait for button press 
-            while (!HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13));  // wait for button release
+            while (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_9));   // wait for button press 
+            while (!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_9));  // wait for button release
         }
-    }
+    }  
 #endif
 
 #ifdef ROTARY_ENCODER
@@ -278,13 +297,10 @@ int main(void)
     return 0;
 }
 
-
-
-
-
 // This function is called by the HAL once every millisecond
 void SysTick_Handler(void)
 {
     HAL_IncTick(); // tell HAL that a new tick has happened
     // we can do other things in here too if we need to, but be careful
 }
+

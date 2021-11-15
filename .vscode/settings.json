@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "servoobject.h": "c",
+        "stdio.h": "c"
+    }
+}

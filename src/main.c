@@ -8,13 +8,7 @@
 // To run a particular example, you should remove the comment (//) in
 // front of exactly ONE of the following lines:
 
-<<<<<<< HEAD
 //#define BUTTON_BLINK
-=======
-
-
-#define BUTTON_BLINK
->>>>>>> 1b79b27621c79c4b2d2bd59e48065d857de26802
 // #define LIGHT_SCHEDULER
 // #define TIME_RAND
 // #define KEYPAD
@@ -29,39 +23,12 @@
 #include <stdbool.h> // booleans, i.e. true and false
 #include <stdio.h>   // sprintf() function
 #include <stdlib.h>  // srand() and random() functions
-<<<<<<< HEAD
-=======
 
-
->>>>>>> 1b79b27621c79c4b2d2bd59e48065d857de26802
 #include "ece198.h"
-#include "LiquidCrystal.h"
-#include<Servo.h>
 
 int main(void)
 {
-<<<<<<< HEAD
 
-/*
-    while (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_8))
-    {
-    }
-
-    while (1) // loop forever, blinking the LED
-    {
-    for (int color = 0; color < 8; ++color) {
-      // bottom three bits indicate which of the three LEDs should be on (eight possible combinations)
-        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, color & 0x01);  // blue  (hex 1 == 0001 binary)
-        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, color & 0x02);  // green (hex 2 == 0010 binary)
-        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, color & 0x04);  // red   (hex 4 == 0100 binary)
-
-        while (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13));   // wait for button press 
-        while (!HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13));  // wait for button release
-    }
-    }
-*/
-=======
->>>>>>> 1b79b27621c79c4b2d2bd59e48065d857de26802
     HAL_Init(); // initialize the Hardware Abstraction Layer
 
     // Peripherals (including GPIOs) are disabled by default to save power, so we

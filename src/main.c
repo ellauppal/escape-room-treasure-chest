@@ -8,17 +8,17 @@
 // To run a particular example, you should remove the comment (//) in
 // front of exactly ONE of the following lines:
 
-//#define BUTTON_BLINK
+#define BUTTON_BLINK
 // #define LIGHT_SCHEDULER
 // #define TIME_RAND
 // #define KEYPAD
 // #define KEYPAD_CONTROL
 // #define SEVEN_SEGMENT
 // #define KEYPAD_SEVEN_SEGMENT
-#define COLOR_LED
+// #define COLOR_LED
 // #define ROTARY_ENCODER
 // #define ANALOG
-// #define PWM
+//#define PWM
 
 #include <stdbool.h> // booleans, i.e. true and false
 #include <stdio.h>   // sprintf() function
@@ -53,19 +53,36 @@ int main(void)
     // as mentioned above, only one of the following code sections will be used
     // (depending on which of the #define statements at the top of this file has been uncommented)
 
+    InitializePin(GPIOA, GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);
+    InitializePin(GPIOB, GPIO_PIN_6, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);
+    
+    InitializePin(GPIOC, GPIO_PIN_13, GPIO_MODE_INPUT, GPIO_PULLDOWN, 0);
+
 #ifdef BUTTON_BLINK
-    // Wait for the user to push the blue button, then blink the LED.
+    // Wait for the user to push button, then blink the LED.
+    while (1){
 
-    // wait for button press (active low)
-    while (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13))
-    {
+        if (!HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13))
+        {
+            HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+            HAL_Delay(250);  // 250 milliseconds == 1/4 second
+            HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+
+            HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_6);
+            HAL_Delay(500);  // 250 milliseconds == 1/4 second
+            HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_6);
+            
+            HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_7);
+            HAL_Delay(750);  // 250 milliseconds == 1/4 second
+            HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_7);
+
+            HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_6);
+            HAL_Delay(1000);  // 250 milliseconds == 1/4 second
+            HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_6);
+        }
+
     }
 
-    while (1) // loop forever, blinking the LED
-    {
-        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-        HAL_Delay(250);  // 250 milliseconds == 1/4 second
-    }
 #endif
 
 #ifdef LIGHT_SCHEDULER
@@ -181,18 +198,34 @@ int main(void)
     InitializePin(GPIOA, GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);  // initialize color LED output pins
     InitializePin(GPIOA, GPIO_PIN_9, GPIO_MODE_INPUT, GPIO_NOPULL, 0);  // initialize color LED output pins
 
-
     while (true) {
+
+    for (int color = 0; color < 8; ++color) {
+        // bottom three bits indicate which of the three LEDs should be on (eight possible combinations)
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, color & 0x01);  // blue  (hex 1 == 0001 binary)
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, color & 0x02);  // green (hex 2 == 0010 binary)
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, color & 0x04);  // red   (hex 4 == 0100 binary)
+
+        //while (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_9));   // wait for button press 
+        // while (!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_9));  // wait for button release
+    }
+
+}    
+    /*
+    while (true) {
+
         for (int color = 0; color < 8; ++color) {
             // bottom three bits indicate which of the three LEDs should be on (eight possible combinations)
             HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, color & 0x01);  // blue  (hex 1 == 0001 binary)
             HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, color & 0x02);  // green (hex 2 == 0010 binary)
             HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, color & 0x04);  // red   (hex 4 == 0100 binary)
 
-            while (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_9));   // wait for button press 
-            while (!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_9));  // wait for button release
+            //while (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_9));   // wait for button press 
+            // while (!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_9));  // wait for button release
         }
-    }  
+
+    }          
+    */
 #endif
 
 #ifdef ROTARY_ENCODER
@@ -242,6 +275,135 @@ int main(void)
 #endif
 
 #ifdef PWM
+
+// Use Pulse Width Modulation to fade the LED in and out.
+    uint16_t period = 100, prescale = 16;
+
+    __TIM2_CLK_ENABLE();  // enable timer 2
+    TIM_HandleTypeDef pwmTimerInstance;  // this variable stores an instance of the timer
+    InitializePWMTimer(&pwmTimerInstance, TIM2, period, prescale);   // initialize the timer instance
+    InitializePWMChannel(&pwmTimerInstance, TIM_CHANNEL_1);          // initialize one channel (can use others for motors, etc)
+
+    InitializePin(GPIOA, GPIO_PIN_5, GPIO_MODE_AF_PP, GPIO_NOPULL, GPIO_AF1_TIM2); // connect the LED to the timer output
+
+    while (true)
+    {
+        // fade the LED in by slowly increasing the duty cycle
+        for (uint32_t i = 0; i < period; ++i)
+        {
+            SetPWMDutyCycle(&pwmTimerInstance, TIM_CHANNEL_1, i);
+            HAL_Delay(5);
+        }
+        // fade the LED out by slowly decreasing the duty cycle
+        for (uint32_t i = period; i > 0; --i)
+        {
+            SetPWMDutyCycle(&pwmTimerInstance, TIM_CHANNEL_1, i);
+            HAL_Delay(5);
+        }
+    }
+    
+/*
+    uint16_t period = 100, prescale = 16;
+
+    TIM_HandleTypeDef pwmTimerInstance; 
+
+    HAL_TIM_PWM_Start(&pwmTimerInstance, TIM_CHANNEL_1);
+    InitializePWMTimer(&pwmTimerInstance, TIM2, period, prescale);   // initialize the timer instance
+    InitializePWMChannel(&pwmTimerInstance, TIM_CHANNEL_1);          // initialize one channel (can use others for motors, etc)
+
+    while (true)
+    {
+	  pwmTimerInstance.CCR1 = 25;  // duty cycle is .5 ms
+	  HAL_Delay(2000);
+	  pwmTimerInstance->CCR1 = 75;  // duty cycle is 1.5 ms
+	  HAL_Delay(2000);
+	  pwmTimerInstance->CCR1 = 125;  // duty cycle is 2.5 ms
+	  HAL_Delay(2000);
+     }
+*/
+/*
+// Use Pulse Width Modulation to fade the LED in and out.
+    uint16_t period = 100, prescale = 16;
+
+    __TIM2_CLK_ENABLE();  // enable timer 2
+    TIM_HandleTypeDef pwmTimerInstance;  // this variable stores an instance of the timer
+    InitializePWMTimer(&pwmTimerInstance, TIM2, period, prescale);   // initialize the timer instance
+    InitializePWMChannel(&pwmTimerInstance, TIM_CHANNEL_1);          // initialize one channel (can use others for motors, etc)
+
+    InitializePin(GPIOA, GPIO_PIN_5, GPIO_MODE_AF_PP, GPIO_NOPULL, GPIO_AF1_TIM2); // connect the LED to the timer output
+
+    while (true)
+    {
+        // fade the LED in by slowly increasing the duty cycle
+        for (uint32_t i = 0; i < period; ++i)
+        {
+            SetPWMDutyCycle(&pwmTimerInstance, TIM_CHANNEL_1, i);
+            HAL_Delay(5);
+        }
+        // fade the LED out by slowly decreasing the duty cycle
+        for (uint32_t i = period; i > 0; --i)
+        {
+            SetPWMDutyCycle(&pwmTimerInstance, TIM_CHANNEL_1, i);
+            HAL_Delay(5);
+        }
+    }
+/*
+
+    // Use Pulse Width Modulation to rotate servo
+    uint16_t period = 100, prescale = 16;
+
+    __TIM2_CLK_ENABLE();  // enable timer 2
+    TIM_HandleTypeDef pwmTimerInstance;  // this variable stores an instance of the timer
+    InitializePWMTimer(&pwmTimerInstance, TIM2, period, prescale);   // initialize the timer instance
+    InitializePWMChannel(&pwmTimerInstance, TIM_CHANNEL_1);          // initialize one channel (can use others for motors, etc)
+
+    InitializePin(GPIOC, GPIO_PIN_7, GPIO_MODE_AF_PP, GPIO_NOPULL, GPIO_AF1_TIM2); // connect the servo to the timer output
+
+    while (true)
+    {
+        // make motor rotate clockwise
+        for (uint32_t i = 0; i < period; ++i)
+        {
+            SetPWMDutyCycle(&pwmTimerInstance, TIM_CHANNEL_1, i);
+            HAL_Delay(5);
+        }
+        // make motor rotate counter clockwise
+        for (uint32_t i = period; i > 0; --i)
+        {
+            SetPWMDutyCycle(&pwmTimerInstance, TIM_CHANNEL_1, i);
+            HAL_Delay(5);
+        }
+    }
+
+InitializePin(GPIOC, GPIO_PIN_7, GPIO_MODE_AF_PP, GPIO_NOPULL, GPIO_AF1_TIM2); // connect the servo to the timer output
+// wait for button press (active low)
+    while (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13))
+    {
+    }
+
+    while (1) // loop forever, blinking the LED
+    {
+        __HAL_TIM_SetCompare(TIM2, TIM_CHANNEL_1, 100);
+        __HAL_TIM_SetCompare(TIM2, TIM_CHANNEL_1, 75);
+        __HAL_TIM_SetCompare(TIM2, TIM_CHANNEL_1, 50);
+    }
+
+
+    TIM_HandleTypeDef pwmTimerInstance; 
+
+    HAL_TIM_PWM_Start(TIM2, TIM_CHANNEL_1);
+
+    while (true)
+    {
+	  TIM2->CCR1 = 25;  // duty cycle is .5 ms
+	  HAL_Delay(2000);
+	  TIM2->CCR1 = 75;  // duty cycle is 1.5 ms
+	  HAL_Delay(2000);
+	  TIM2->CCR1 = 125;  // duty cycle is 2.5 ms
+	  HAL_Delay(2000);
+     }
+ 
+   /* 
     // Use Pulse Width Modulation to fade the LED in and out.
     uint16_t period = 100, prescale = 16;
 
@@ -267,6 +429,7 @@ int main(void)
             HAL_Delay(5);
         }
     }
+   */ 
 #endif
     return 0;
 }

@@ -16,9 +16,12 @@
 // #define SEVEN_SEGMENT
 // #define KEYPAD_SEVEN_SEGMENT
 // #define COLOR_LED
+
 // #define ROTARY_ENCODER
 // #define ANALOG
 //#define PWM
+
+#define REED_SWITCH
 
 #include <stdbool.h> // booleans, i.e. true and false
 #include <stdio.h>   // sprintf() function
@@ -26,8 +29,20 @@
 
 #include "ece198.h"
 
+void DisplaySensor(GPIO_TypeDef *port, uint16_t pin);
+
+void DisplaySensor(GPIO_TypeDef *port, uint16_t pin){
+    if(!HAL_GPIO_ReadPin(port,pin))
+        SerialPutc('X');
+    else
+        SerialPutc('_');
+
+}
+
 int main(void)
 {
+
+
 
     HAL_Init(); // initialize the Hardware Abstraction Layer
 
@@ -54,9 +69,19 @@ int main(void)
     // (depending on which of the #define statements at the top of this file has been uncommented)
 
     InitializePin(GPIOA, GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);
+    InitializePin(GPIOA, GPIO_PIN_8, GPIO_MODE_INPUT, GPIO_PULLUP, 0);
+
     InitializePin(GPIOB, GPIO_PIN_6, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);
     
     InitializePin(GPIOC, GPIO_PIN_13, GPIO_MODE_INPUT, GPIO_PULLDOWN, 0);
+
+#ifdef REED_SWITCH
+    while(1){
+        DisplaySensor(GPIOA, GPIO_PIN_8);
+        SerialPuts("   \r");
+    }
+
+#endif
 
 #ifdef BUTTON_BLINK
     // Wait for the user to push button, then blink the LED.
@@ -375,35 +400,6 @@ int main(void)
         }
     }
 
-InitializePin(GPIOC, GPIO_PIN_7, GPIO_MODE_AF_PP, GPIO_NOPULL, GPIO_AF1_TIM2); // connect the servo to the timer output
-// wait for button press (active low)
-    while (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13))
-    {
-    }
-
-    while (1) // loop forever, blinking the LED
-    {
-        __HAL_TIM_SetCompare(TIM2, TIM_CHANNEL_1, 100);
-        __HAL_TIM_SetCompare(TIM2, TIM_CHANNEL_1, 75);
-        __HAL_TIM_SetCompare(TIM2, TIM_CHANNEL_1, 50);
-    }
-
-
-    TIM_HandleTypeDef pwmTimerInstance; 
-
-    HAL_TIM_PWM_Start(TIM2, TIM_CHANNEL_1);
-
-    while (true)
-    {
-	  TIM2->CCR1 = 25;  // duty cycle is .5 ms
-	  HAL_Delay(2000);
-	  TIM2->CCR1 = 75;  // duty cycle is 1.5 ms
-	  HAL_Delay(2000);
-	  TIM2->CCR1 = 125;  // duty cycle is 2.5 ms
-	  HAL_Delay(2000);
-     }
- 
-   /* 
     // Use Pulse Width Modulation to fade the LED in and out.
     uint16_t period = 100, prescale = 16;
 
@@ -430,6 +426,7 @@ InitializePin(GPIOC, GPIO_PIN_7, GPIO_MODE_AF_PP, GPIO_NOPULL, GPIO_AF1_TIM2); /
         }
     }
    */ 
+
 #endif
     return 0;
 }
@@ -440,4 +437,3 @@ void SysTick_Handler(void)
     HAL_IncTick(); // tell HAL that a new tick has happened
     // we can do other things in here too if we need to, but be careful
 }
-

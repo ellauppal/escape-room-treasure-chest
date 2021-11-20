@@ -1,5 +1,10 @@
 {
     "files.associations": {
+<<<<<<< HEAD
+        "servoobject.h": "c",
+        "stdio.h": "c"
+=======
         "SERVO.C": "cpp"
+>>>>>>> f643c77382e4d33e0649eff694d8e7874fe57403
     }
 }

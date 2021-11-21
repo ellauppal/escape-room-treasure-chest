@@ -2,12 +2,6 @@
 
 // Written by Bernie Roehl, August 2021
 
-// This file contains code for a number of different examples.
-// Each one is surrounded by an #ifdef ... #endif block inside of main().
-
-// To run a particular example, you should remove the comment (//) in
-// front of exactly ONE of the following lines:
-
 #define BUTTON_BLINK
 // #define LIGHT_SCHEDULER
 // #define TIME_RAND
@@ -19,9 +13,9 @@
 
 // #define ROTARY_ENCODER
 // #define ANALOG
-//#define PWM
+// #define PWM
 
-#define REED_SWITCH
+// #define REED_SWITCH
 
 #include <stdbool.h> // booleans, i.e. true and false
 #include <stdio.h>   // sprintf() function
@@ -41,9 +35,6 @@ void DisplaySensor(GPIO_TypeDef *port, uint16_t pin){
 
 int main(void)
 {
-
-
-
     HAL_Init(); // initialize the Hardware Abstraction Layer
 
     // Peripherals (including GPIOs) are disabled by default to save power, so we
@@ -68,12 +59,20 @@ int main(void)
     // as mentioned above, only one of the following code sections will be used
     // (depending on which of the #define statements at the top of this file has been uncommented)
 
-    InitializePin(GPIOA, GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);
-    InitializePin(GPIOA, GPIO_PIN_8, GPIO_MODE_INPUT, GPIO_PULLUP, 0);
 
+// initalizing LEDs
+    InitializePin(GPIOA, GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);
     InitializePin(GPIOB, GPIO_PIN_6, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);
+
+// initalizing buttons
+    InitializePin(GPIOA, GPIO_PIN_9, GPIO_MODE_INPUT, GPIO_NOPULL, 0);  
     
-    InitializePin(GPIOC, GPIO_PIN_13, GPIO_MODE_INPUT, GPIO_PULLDOWN, 0);
+    InitializePin(GPIOC, GPIO_PIN_13, GPIO_MODE_INPUT, GPIO_NOPULL, 0); 
+
+    InitializePin(GPIOA, GPIO_PIN_8, GPIO_MODE_INPUT, GPIO_PULLUP, 0); // start button
+    InitializePin(GPIOB, GPIO_PIN_10 |  GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5, GPIO_MODE_INPUT, GPIO_PULLUP, 0); // colour buttons
+
+
 
 #ifdef REED_SWITCH
     while(1){
@@ -83,28 +82,170 @@ int main(void)
 
 #endif
 
+// PATTERN: blue, red, blue, green, red, green, green 
+
+// blue = 1
+// red = 2
+// green = 3
+
+int arr[7];
+int real_arr[7]={1,2,1,3,2,3,3};
+char buff[100];
+    for (int i=0; i<7; i++){
+
+        while ( (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_4)) && (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3)) && (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_10)) ){}
+        sprintf(buff, "%hu", i);
+        SerialPuts(buff);
+        if (!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_4)){//blue
+            arr[i] = 1;
+        }
+
+        else if (!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_10)){//red
+            arr[i] = 2;
+        }
+
+        else if (!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3)){//green
+            arr[i] = 3;
+        }
+        while ( (!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_4)) || (!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3)) || (!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_10)) ){}
+        HAL_Delay(100);
+}
+
+for (int i=0; i<7; i++){
+    if (arr[i] == real_arr[i])
+            SerialPutc('x');
+    else
+    SerialPutc('_');
+}
+
+
+
+/*
+int array[7];
+int array2[7]={1,2,1,3,2,3,3};
+        for (int i=0; i<7; i++){
+            if (!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_4)){//blue
+                    array[i]=1;
+            }else if (!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_10)){//red
+                    array[i]=2;
+             //}else if (!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_4)){//blue
+               //     array[i]=3;
+            } else if (!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3)){//green
+                    array[i]=3;
+            //}else if (!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_10)){//red
+              //      array[i]=5;
+            //}else if (!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3)){//green
+             //       array[i]=6;
+            //}else if (!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3)){//green
+               //     array[i]=7;
+            }
+
+            for (int i=0; i<7; i++){
+                if (array[i] == array2[i])
+                    SerialPutc(array[i]);
+                    
+                }
+            }
+*/
+/*
+int array[7];
+int array2[7]={1,2,1,3,2,3,3};
+
+    for (int i=0; i<7; i++){
+    
+        if (!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_4)){//blue
+        array[i]=1;
+        }
+        else{
+                false;
+            }
+
+        if (!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_4)){//blue
+        array[i]=1;
+}
+        else {
+                false;
+            }
+
+        else if (!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_10)){//red
+                array[i]=2;
+
+        } else if (!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3)){//green
+                array[i]=3;
+        }
+        HAL_Delay(1000);
+    
+        
+    }
+*/
+
+        //  GPIOB, GPIO_PIN_10 == red button
+        //  GPIOB, GPIO_PIN_4 == blue button
+        //  GPIOB, GPIO_PIN_5 == yellow button
+        //  GPIOB, GPIO_PIN_3 == green button
+
 #ifdef BUTTON_BLINK
     // Wait for the user to push button, then blink the LED.
     while (1){
 
-        if (!HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13))
+        //  GPIOA, GPIO_PIN_5 == green led
+        //  GPIOA, GPIO_PIN_6 == yellow led 
+        //  GPIOA, GPIO_PIN_7 == blue led
+        //  GPIOB, GPIO_PIN_6 == red led
+
+        // PATTERN: blue, red, blue, green, red, green, green 
+
+
+        if (!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_8))
         {
-            HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-            HAL_Delay(250);  // 250 milliseconds == 1/4 second
-            HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
 
-            HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_6);
-            HAL_Delay(500);  // 250 milliseconds == 1/4 second
-            HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_6);
-            
-            HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_7);
-            HAL_Delay(750);  // 250 milliseconds == 1/4 second
+            HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_7); // blue
+            HAL_Delay (600);  // 250 milliseconds == 1/4 second
             HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_7);
 
+            HAL_Delay(500); 
+
+            HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_6); // red
+            HAL_Delay(600);  // 250 milliseconds == 1/4 second
             HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_6);
-            HAL_Delay(1000);  // 250 milliseconds == 1/4 second
+
+            HAL_Delay(500); 
+
+            HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_7); // blue
+            HAL_Delay(600);  // 250 milliseconds == 1/4 second
+            HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_7);
+
+            HAL_Delay(500); 
+
+            HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // green
+            HAL_Delay(600);  // 250 milliseconds == 1/4 second
+            HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+
+            HAL_Delay(500); 
+
+            HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_6); // red
+            HAL_Delay(600);  // 250 milliseconds == 1/4 second
             HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_6);
+
+            HAL_Delay(500); 
+
+            HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // green
+            HAL_Delay(600);  // 250 milliseconds == 1/4 second
+            HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+
+            HAL_Delay(500); 
+
+            HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // green
+            HAL_Delay(600);  // 250 milliseconds == 1/4 second
+            HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
         }
+
+/*
+        if (!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3))
+            SerialPutc('X');
+        else
+            SerialPutc('_');
+*/
 
     }
 
@@ -302,29 +443,24 @@ int main(void)
 #ifdef PWM
 
 // Use Pulse Width Modulation to fade the LED in and out.
-    uint16_t period = 100, prescale = 16;
+    uint16_t period = 2000, prescale = 16;
 
     __TIM2_CLK_ENABLE();  // enable timer 2
     TIM_HandleTypeDef pwmTimerInstance;  // this variable stores an instance of the timer
     InitializePWMTimer(&pwmTimerInstance, TIM2, period, prescale);   // initialize the timer instance
     InitializePWMChannel(&pwmTimerInstance, TIM_CHANNEL_1);          // initialize one channel (can use others for motors, etc)
+    // InitializePWMChannel(&pwmTimerInstance, TIM_CHANNEL_2);
 
     InitializePin(GPIOA, GPIO_PIN_5, GPIO_MODE_AF_PP, GPIO_NOPULL, GPIO_AF1_TIM2); // connect the LED to the timer output
 
     while (true)
     {
-        // fade the LED in by slowly increasing the duty cycle
         for (uint32_t i = 0; i < period; ++i)
-        {
+            {
             SetPWMDutyCycle(&pwmTimerInstance, TIM_CHANNEL_1, i);
             HAL_Delay(5);
-        }
-        // fade the LED out by slowly decreasing the duty cycle
-        for (uint32_t i = period; i > 0; --i)
-        {
-            SetPWMDutyCycle(&pwmTimerInstance, TIM_CHANNEL_1, i);
-            HAL_Delay(5);
-        }
+            }
+  
     }
     
 /*

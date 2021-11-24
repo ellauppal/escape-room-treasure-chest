@@ -1,5 +1,5 @@
 // Written by Bernie Roehl, August 2021
-
+#define LCD_SCREEN
 #define COLOUR_GAME
 #define PWM
 // #define REED_SWITCH
@@ -66,6 +66,14 @@ int main(void)
 
     InitializePin(GPIOA, GPIO_PIN_8, GPIO_MODE_INPUT, GPIO_PULLUP, 0); // start button
     InitializePin(GPIOB, GPIO_PIN_10 |  GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5, GPIO_MODE_INPUT, GPIO_PULLUP, 0); // colour buttons
+    InitializePin(GPIOB, GPIO_PIN_8| GPIO_PIN_9| GPIO_PIN_10| GPIO_PIN_3|GPIO_PIN_4| GPIO_PIN_5| GPIO_PIN_6, GPIO_MODE_INPUT, GPIO_NOPULL, 0); //initialize LCD
+
+
+#ifdef LCD_SCREEN
+    LiquidCrystal(GPIOB, GPIO_PIN_8, GPIO_PIN_9, GPIO_PIN_10, GPIO_PIN_3,GPIO_PIN_4, GPIO_PIN_5, GPIO_PIN_6);
+    setCursor(0,0);
+    print("OLD JOHN'S PIRATE CHEST");
+#endif
 
 #ifdef REED_SWITCH
     while(1){

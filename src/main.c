@@ -231,34 +231,6 @@ while (play){
         }
     }
 
-    
-/*
-    uint16_t period = 100, prescale = 16;
-
-    __TIM2_CLK_ENABLE();  // enable timer 2
-    TIM_HandleTypeDef pwmTimerInstance;  // this variable stores an instance of the timer
-    InitializePWMTimer(&pwmTimerInstance, TIM2, period, prescale);   // initialize the timer instance
-    InitializePWMChannel(&pwmTimerInstance, TIM_CHANNEL_1);          // initialize one channel
-
-    InitializePin(GPIOA, GPIO_PIN_5, GPIO_MODE_AF_PP, GPIO_NOPULL, GPIO_AF1_TIM2); // connect the servo to the timer output
-
-    while (true)
-    {
-        // fade the LED in by slowly increasing the duty cycle
-        for (uint32_t i = 0; i < period; ++i)
-        {
-            SetPWMDutyCycle(&pwmTimerInstance, TIM_CHANNEL_1, i);
-            HAL_Delay(5);
-        }
-        // fade the LED out by slowly decreasing the duty cycle
-        for (uint32_t i = period; i > 0; --i)
-        {
-            SetPWMDutyCycle(&pwmTimerInstance, TIM_CHANNEL_1, i);
-            HAL_Delay(5);
-        }
-    }
-   */ 
-
 #endif
     return 0;
 }

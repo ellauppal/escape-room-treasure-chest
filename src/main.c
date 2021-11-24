@@ -3,6 +3,7 @@
 #define COLOUR_GAME
 #define PWM
 // #define REED_SWITCH
+// UNCOMMENT REED_SWITCH AND RUN ON SECOND NUCLEO
 
 #include <stdbool.h> // booleans, i.e. true and false
 #include <stdio.h>   // sprintf() function
@@ -10,12 +11,12 @@
 
 #include "ece198.h"
 
-/*
+/* // UNCOMMENT AND RUN ON SECOND NUCLEO BOARD
 void DisplaySensor(GPIO_TypeDef *port, uint16_t pin);
 
 void DisplaySensor(GPIO_TypeDef *port, uint16_t pin){
     
-    uint16_t period = 100, prescale = 0;
+    uint16_t period = 2000, prescale = 16;
 
     if(!HAL_GPIO_ReadPin(port,pin)){
         __TIM2_CLK_ENABLE();  // enable timer 2
@@ -26,18 +27,15 @@ void DisplaySensor(GPIO_TypeDef *port, uint16_t pin){
 
         InitializePin(GPIOA, GPIO_PIN_5, GPIO_MODE_AF_PP, GPIO_NOPULL, GPIO_AF1_TIM2); // connect the motor to the timer output
 
-            //while (true)
-           // {
-                for (uint32_t i = 0; i < period; ++i)
-                    {
-                    SetPWMDutyCycle(&pwmTimerInstance, TIM_CHANNEL_1, i);
-                    HAL_Delay(5);
-                    }
-          //  }     
+        while (true)
+        {
+            SetPWMDutyCycle(&pwmTimerInstance, TIM_CHANNEL_1, 1500);
+            HAL_Delay(5);
+        }  
     }
     
    
-    if(!HAL_GPIO_ReadPin(port,pin))
+    if(!HAL_GPIO_ReadPin(port,pin)) // DEBUGGING
         SerialPutc('X');
     else
         SerialPutc('_'); 
@@ -157,7 +155,7 @@ while (play){
         for (int i=0; i<7; i++){
 
             while ( (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_4)) && (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3)) && (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_10)) ){}
-            sprintf(buff, "%hu", i);
+            sprintf(buff, "%hu", i); // DEBUGGING
             SerialPuts(buff);
             if (!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_4)){//blue
                 arr[i] = 1;
@@ -225,14 +223,11 @@ while (play){
 
     InitializePin(GPIOA, GPIO_PIN_1, GPIO_MODE_AF_PP, GPIO_NOPULL, GPIO_AF1_TIM2); // connect the motor to the timer output
 
-   if (val == 7) {
+    if (val == 7) {
         while (true)
         {
-            for (uint32_t i = 0; i < period; ++i)
-                {
-                SetPWMDutyCycle(&pwmTimerInstance, TIM_CHANNEL_1, i);
-                HAL_Delay(5);
-                }
+            SetPWMDutyCycle(&pwmTimerInstance, TIM_CHANNEL_1, 1500);
+            HAL_Delay(5);
         }
     }
 

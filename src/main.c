@@ -1,7 +1,7 @@
-// Written by Bernie Roehl, August 2021
 #define LCD_SCREEN
 #define COLOUR_GAME
 #define PWM
+
 // #define REED_SWITCH
 // UNCOMMENT REED_SWITCH AND RUN ON SECOND NUCLEO
 
@@ -11,7 +11,9 @@
 
 #include "ece198.h"
 
-/* // UNCOMMENT AND RUN ON SECOND NUCLEO BOARD
+/* 
+
+// UNCOMMENT AND RUN ON SECOND NUCLEO BOARD
 void DisplaySensor(GPIO_TypeDef *port, uint16_t pin);
 
 void DisplaySensor(GPIO_TypeDef *port, uint16_t pin){
@@ -53,19 +55,21 @@ int main(void)
 
     SerialSetup(9600);
 
-// initalizing LEDs
+    // initalizing LEDs
     InitializePin(GPIOA, GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);
     InitializePin(GPIOB, GPIO_PIN_6, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);
 
-// initalizing buttons
+    // initalizing buttons
     InitializePin(GPIOA, GPIO_PIN_9, GPIO_MODE_INPUT, GPIO_NOPULL, 0);  
-    
     InitializePin(GPIOC, GPIO_PIN_13, GPIO_MODE_INPUT, GPIO_NOPULL, 0); 
 
-  //  InitializePin(GPIOA, GPIO_PIN_6, GPIO_MODE_INPUT, GPIO_PULLUP, 0); // start button
+    // initalizing start button
+    InitializePin(GPIOA, GPIO_PIN_8, GPIO_MODE_INPUT, GPIO_PULLUP, 0);
 
-    InitializePin(GPIOA, GPIO_PIN_8, GPIO_MODE_INPUT, GPIO_PULLUP, 0); // start button
-    InitializePin(GPIOB, GPIO_PIN_10 |  GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5, GPIO_MODE_INPUT, GPIO_PULLUP, 0); // colour buttons
+    // initalizing colour buttons   
+    InitializePin(GPIOB, GPIO_PIN_10 |  GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5, GPIO_MODE_INPUT, GPIO_PULLUP, 0); 
+
+    // initalizing for LCD screen
     InitializePin(GPIOB, GPIO_PIN_8| GPIO_PIN_9| GPIO_PIN_10| GPIO_PIN_3|GPIO_PIN_4| GPIO_PIN_5| GPIO_PIN_6, GPIO_MODE_INPUT, GPIO_NOPULL, 0); //initialize LCD
 
 
@@ -224,10 +228,9 @@ while (play){
     uint16_t period = 2000, prescale = 16;
 
     __TIM2_CLK_ENABLE();  // enable timer 2
-    TIM_HandleTypeDef pwmTimerInstance;  // this variable stores an instance of the timer
+    TIM_HandleTypeDef pwmTimerInstance;  // stores an instance of the timer
     InitializePWMTimer(&pwmTimerInstance, TIM2, period, prescale);   // initialize the timer instance
-    InitializePWMChannel(&pwmTimerInstance, TIM_CHANNEL_1);          // initialize one channel (can use others for motors, etc)
-    // InitializePWMChannel(&pwmTimerInstance, TIM_CHANNEL_2);
+    InitializePWMChannel(&pwmTimerInstance, TIM_CHANNEL_1);          // initialize one channel (can use others for motors)
 
     InitializePin(GPIOA, GPIO_PIN_1, GPIO_MODE_AF_PP, GPIO_NOPULL, GPIO_AF1_TIM2); // connect the motor to the timer output
 
@@ -243,9 +246,9 @@ while (play){
     return 0;
 }
 
-// This function is called by the HAL once every millisecond
+// called by the HAL once every millisecond
 void SysTick_Handler(void)
 {
     HAL_IncTick(); // tell HAL that a new tick has happened
-    // we can do other things in here too if we need to, but be careful
+
 }

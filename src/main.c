@@ -1,4 +1,3 @@
-// Written by Bernie Roehl, August 2021
 #define LCD_SCREEN
 #define COLOUR_GAME
 #define PWM
@@ -58,12 +57,8 @@ int main(void)
     InitializePin(GPIOB, GPIO_PIN_6, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);
 
 // initalizing buttons
-    InitializePin(GPIOA, GPIO_PIN_9, GPIO_MODE_INPUT, GPIO_NOPULL, 0);  
     
-    InitializePin(GPIOC, GPIO_PIN_13, GPIO_MODE_INPUT, GPIO_NOPULL, 0); 
-
-  //  InitializePin(GPIOA, GPIO_PIN_6, GPIO_MODE_INPUT, GPIO_PULLUP, 0); // start button
-
+    InitializePin(GPIOC, GPIO_PIN_13, GPIO_MODE_INPUT, GPIO_NOPULL, 0); // reset button
     InitializePin(GPIOA, GPIO_PIN_8, GPIO_MODE_INPUT, GPIO_PULLUP, 0); // start button
     InitializePin(GPIOB, GPIO_PIN_10 |  GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5, GPIO_MODE_INPUT, GPIO_PULLUP, 0); // colour buttons
     InitializePin(GPIOB, GPIO_PIN_8| GPIO_PIN_9| GPIO_PIN_10| GPIO_PIN_3|GPIO_PIN_4| GPIO_PIN_5| GPIO_PIN_6, GPIO_MODE_INPUT, GPIO_NOPULL, 0); //initialize LCD
@@ -152,10 +147,10 @@ while (play){
         }
     }
 
-        //  GPIOB, GPIO_PIN_10 == red button
-        //  GPIOB, GPIO_PIN_4 == blue button
-        //  GPIOB, GPIO_PIN_5 == yellow button
-        //  GPIOB, GPIO_PIN_3 == green button
+    //  GPIOB, GPIO_PIN_10 == red button
+    //  GPIOB, GPIO_PIN_4 == blue button
+    //  GPIOB, GPIO_PIN_5 == yellow button
+    //  GPIOB, GPIO_PIN_3 == green button
     
     int arr[7];
     int real_arr[7]={1,2,1,3,2,3,3};
@@ -224,10 +219,9 @@ while (play){
     uint16_t period = 2000, prescale = 16;
 
     __TIM2_CLK_ENABLE();  // enable timer 2
-    TIM_HandleTypeDef pwmTimerInstance;  // this variable stores an instance of the timer
+    TIM_HandleTypeDef pwmTimerInstance;  // stores an instance of the timer
     InitializePWMTimer(&pwmTimerInstance, TIM2, period, prescale);   // initialize the timer instance
     InitializePWMChannel(&pwmTimerInstance, TIM_CHANNEL_1);          // initialize one channel (can use others for motors, etc)
-    // InitializePWMChannel(&pwmTimerInstance, TIM_CHANNEL_2);
 
     InitializePin(GPIOA, GPIO_PIN_1, GPIO_MODE_AF_PP, GPIO_NOPULL, GPIO_AF1_TIM2); // connect the motor to the timer output
 
@@ -243,7 +237,7 @@ while (play){
     return 0;
 }
 
-// This function is called by the HAL once every millisecond
+// function is called by the HAL once every millisecond
 void SysTick_Handler(void)
 {
     HAL_IncTick(); // tell HAL that a new tick has happened

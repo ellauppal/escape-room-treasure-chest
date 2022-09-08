@@ -2,7 +2,7 @@
 
 Code written for software component of escape room hardware project.
 
-Code is located in *src* folder
+Code is located in **src** folder
 
 ## Watch our Project in Action 
 

@@ -1,5 +1,7 @@
 # Escape Room Treasure Chest 💎📦
+See src/main.c for main code.
 
+## Project Description
 - Self-locking treasure chest with an LED-based memory game and various puzzles.
 - Chest locking mechanism is controlled using servo motors and unlocking is triggered when an LED memory game is completed.
 - User is provided instructions via an LCD screen.

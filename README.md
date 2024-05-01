@@ -2,10 +2,10 @@
 See src/main.c for main code.
 
 ## Project Description
-- Self-locking treasure chest with an LED-based memory game and various puzzles.
-- Chest locking mechanism is controlled using servo motors and unlocking is triggered when an LED memory game is completed.
-- User is provided instructions via an LCD screen.
-- Pulse Width Modulation is used to control the LEDs and servo motors.
+- Self-locking treasure chest with an LED-based memory game and various puzzles
+- Chest locking mechanism is controlled using servo motors and unlocking is triggered when an LED memory game is completed
+- User is provided instructions via an LCD screen
+- Pulse Width Modulation is used to control the LEDs and servo motors
 - Implementation firmware is written in C for STM32 Nucleo-64 microcontroller
 
 <img width="768" alt="Image1" src="https://github.com/ellauppal/escape-room-treasure-chest/assets/89555654/5df5c418-75fc-45fb-862b-4d525ec36f76">
